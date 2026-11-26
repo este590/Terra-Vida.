@@ -1,3 +1,4 @@
+
 name: Crear APK Terra Vida
 
 on:
@@ -20,13 +21,8 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Instalar herramientas Android
+      - name: Configurar Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: |
-            platform-tools
-            platforms;android-35
-            build-tools;35.0.0
 
       - name: Instalar Gradle
         run: |
@@ -36,17 +32,14 @@ jobs:
           unzip -q gradle-8.7-bin.zip
           echo "$GITHUB_WORKSPACE/gradle-8.7/bin" >> "$GITHUB_PATH"
 
-      - name: Extraer proyecto Terra Vida
+      - name: Extraer proyecto
         run: |
           unzip -o TerraVida.zip -d proyecto
           FILE=$(find proyecto -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
-          if [ -z "$FILE" ]; then
-            echo "No se encontró settings.gradle"
-            exit 1
-          fi
+          test -n "$FILE"
           echo "PROJECT_DIR=$(dirname "$FILE")" >> "$GITHUB_ENV"
 
-      - name: Compilar aplicación
+      - name: Preparar SDK y compilar
         run: |
           cd "$PROJECT_DIR"
           gradle assembleDebug --no-daemon
